@@ -3,8 +3,23 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Gemini Web Tool Calling</title>
+        <title>NYC Apartment Check</title>
         <style>
+            :root {
+                --night: #0d1321;
+                --panel: #151c2f;
+                --line: #263150;
+                --water: #0a0f1c;
+                --land: #1f2a47;
+                --land-edge: #3a4a78;
+                --park: #1f4d3a;
+                --taxi: #fcc419;
+                --text: #e8ecf5;
+                --muted: #8b95b3;
+                --red: #ee352e;
+                --green: #00933c;
+                --blue: #0039a6;
+            }
             * {
                 box-sizing: border-box;
                 margin: 0;
@@ -12,88 +27,245 @@
             }
             body {
                 font-family: system-ui, sans-serif;
-                height: 100vh;
+                min-height: 100vh;
+                background: radial-gradient(
+                        ellipse at 50% 120%,
+                        #2a2147 0%,
+                        transparent 60%
+                    ),
+                    var(--night);
+                color: var(--text);
                 display: flex;
                 justify-content: center;
                 align-items: center;
-                padding: 3rem 1rem;
+                padding: 2rem 1rem;
             }
-            #container {
+            #app {
                 width: 100%;
-                max-width: 900px;
+                max-width: 1100px;
+            }
+            header {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                margin-bottom: 1.25rem;
+            }
+            .bullets {
+                display: flex;
+                gap: 0.35rem;
+            }
+            .bullets span {
+                width: 1.6rem;
+                height: 1.6rem;
+                border-radius: 50%;
+                display: grid;
+                place-items: center;
+                font-weight: 800;
+                font-size: 0.8rem;
+                color: #fff;
+            }
+            .bullets .a { background: var(--blue); }
+            .bullets .n { background: var(--taxi); color: #000; }
+            .bullets .l { background: var(--green); }
+            .bullets .r { background: var(--red); }
+            h1 {
+                font-size: 1.35rem;
+                letter-spacing: 0.04em;
+                text-transform: uppercase;
+            }
+            h1 small {
+                display: block;
+                font-size: 0.7rem;
+                font-weight: 400;
+                letter-spacing: 0.18em;
+                color: var(--muted);
+            }
+            #layout {
+                display: grid;
+                grid-template-columns: 5fr 6fr;
+                gap: 1.25rem;
+            }
+            @media (max-width: 800px) {
+                #layout {
+                    grid-template-columns: 1fr;
+                }
+            }
+            .card {
+                background: var(--panel);
+                border: 1px solid var(--line);
+                border-radius: 12px;
+                overflow: hidden;
+            }
+
+            /* ---- Map ---- */
+            #map-card {
+                position: relative;
                 display: flex;
                 flex-direction: column;
-                border: 1px solid #e0e0e0;
+            }
+            #map {
+                width: 100%;
+                height: auto;
+                display: block;
+                background: var(--water);
+            }
+            .borough {
+                fill: var(--land);
+                stroke: var(--land-edge);
+                stroke-width: 1.5;
+                stroke-linejoin: round;
+            }
+            .grid line {
+                stroke: #2c3a62;
+                stroke-width: 0.8;
+            }
+            .park {
+                fill: var(--park);
+            }
+            .label {
+                fill: #55648f;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 0.25em;
+                text-anchor: middle;
+            }
+            .wave {
+                fill: none;
+                stroke: #17213a;
+                stroke-width: 1.2;
+            }
+            #pin .ring {
+                fill: none;
+                stroke: var(--taxi);
+                stroke-width: 2;
+                transform-box: fill-box;
+                transform-origin: center;
+                animation: ping 2s ease-out infinite;
+            }
+            #pin .ring.two {
+                animation-delay: 1s;
+            }
+            #pin .dot {
+                fill: var(--taxi);
+                stroke: #000;
+                stroke-width: 2;
+            }
+            #pin text {
+                fill: var(--taxi);
+                font-size: 12px;
+                font-weight: 700;
+                paint-order: stroke;
+                stroke: var(--water);
+                stroke-width: 4px;
+            }
+            @keyframes ping {
+                from { transform: scale(0.4); opacity: 1; }
+                to { transform: scale(3.2); opacity: 0; }
+            }
+            #map-caption {
+                padding: 0.75rem 1rem;
+                border-top: 1px solid var(--line);
+                font-size: 0.75rem;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                color: var(--muted);
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            #map-caption b {
+                color: var(--taxi);
+            }
+
+            /* ---- Chat ---- */
+            #container {
+                display: flex;
+                flex-direction: column;
             }
             #messages {
                 overflow-y: auto;
-                padding: 2rem;
+                padding: 1.5rem;
                 display: flex;
                 flex-direction: column;
-                gap: 1.5rem;
-                min-height: 450px;
+                gap: 1.25rem;
+                height: 480px;
                 max-height: 70vh;
             }
             .msg {
                 line-height: 1.5;
-                max-width: 80%;
+                max-width: 85%;
+                padding: 0.65rem 0.9rem;
+                border-radius: 12px;
+                background: #1d2742;
             }
             .msg.user {
                 align-self: flex-end;
-                text-align: right;
+                background: var(--taxi);
+                color: #111;
             }
             .msg .role {
-                font-size: 0.75rem;
+                font-size: 0.65rem;
                 text-transform: uppercase;
-                letter-spacing: 0.05em;
-                color: #999;
-                margin-bottom: 0.25rem;
+                letter-spacing: 0.1em;
+                opacity: 0.55;
+                margin-bottom: 0.2rem;
             }
             .msg.loading .content {
-                color: #999;
+                color: var(--muted);
+            }
+            .msg .content {
+                white-space: pre-wrap;
             }
             #input-area {
                 display: flex;
                 gap: 1rem;
-                padding: 1.5rem;
-                border-top: 1px solid #e0e0e0;
+                padding: 1rem 1.25rem;
+                border-top: 1px solid var(--line);
             }
             #user-input {
                 flex: 1;
                 padding: 0.75rem 0;
+                background: transparent;
+                color: var(--text);
                 border: none;
-                border-bottom: 1px solid #e0e0e0;
+                border-bottom: 1px solid var(--line);
                 font-size: 1rem;
                 outline: none;
             }
+            #user-input::placeholder {
+                color: var(--muted);
+            }
             #user-input:focus {
-                border-bottom-color: #000;
+                border-bottom-color: var(--taxi);
             }
             button {
                 padding: 0.75rem 1.5rem;
-                background: #000;
-                color: #fff;
+                background: var(--taxi);
+                color: #000;
                 border: none;
+                border-radius: 999px;
                 font-size: 0.75rem;
+                font-weight: 700;
                 text-transform: uppercase;
-                letter-spacing: 0.05em;
+                letter-spacing: 0.08em;
                 cursor: pointer;
             }
             .tool {
                 font-family: ui-monospace, monospace;
-                font-size: 0.75rem;
-                color: #555;
-                background: #f5f5f5;
-                border-left: 3px solid #f59e0b;
+                font-size: 0.72rem;
+                color: var(--muted);
+                background: #10172a;
+                border-left: 3px solid var(--taxi);
                 padding: 0.5rem 0.75rem;
-                margin: 0.25rem 0 0.75rem;
                 white-space: pre-wrap;
                 word-break: break-word;
+                max-height: 7rem;
+                overflow-y: auto;
             }
-            .tool .label {
+            .tool .tag {
                 text-transform: uppercase;
                 letter-spacing: 0.05em;
-                color: #b45309;
+                color: var(--taxi);
             }
             button:disabled {
                 opacity: 0.3;
@@ -101,16 +273,53 @@
         </style>
     </head>
     <body>
-        <div id="container">
-            <div id="messages"></div>
-            <div id="input-area">
-                <input
-                    type="text"
-                    id="user-input"
-                    placeholder="Type a message..."
-                    autocomplete="off"
-                />
-                <button id="send-btn">Send</button>
+        <div id="app">
+            <header>
+                <div class="bullets">
+                    <span class="a">A</span><span class="n">N</span
+                    ><span class="l">L</span><span class="r">6</span>
+                </div>
+                <h1>
+                    NYC Apartment Check
+                    <small>Know the building before you sign</small>
+                </h1>
+            </header>
+
+            <div id="layout">
+                <div class="card" id="map-card">
+                    <svg id="map" viewBox="0 0 600 600" aria-label="Map of New York City">
+                        <defs>
+                            <clipPath id="manhattan-clip">
+                                <path id="manhattan-clip-path" />
+                            </clipPath>
+                        </defs>
+                        <g id="waves"></g>
+                        <g id="boroughs"></g>
+                        <g id="manhattan-grid" class="grid" clip-path="url(#manhattan-clip)"></g>
+                        <path id="park" class="park" />
+                        <g id="labels"></g>
+                        <g id="pin" visibility="hidden">
+                            <circle class="ring" r="8" />
+                            <circle class="ring two" r="8" />
+                            <circle class="dot" r="6" />
+                            <text y="-14" text-anchor="middle"></text>
+                        </g>
+                    </svg>
+                    <div id="map-caption">Ask about an address to drop a pin</div>
+                </div>
+
+                <div class="card" id="container">
+                    <div id="messages"></div>
+                    <div id="input-area">
+                        <input
+                            type="text"
+                            id="user-input"
+                            placeholder="e.g. 245 W 104th St, Manhattan"
+                            autocomplete="off"
+                        />
+                        <button id="send-btn">Send</button>
+                    </div>
+                </div>
             </div>
         </div>
         <script>
@@ -119,18 +328,162 @@
             const sendBtn = document.getElementById("send-btn");
             let sessionId = null;
 
+            // ---------- Map ----------
+            // Hand-simplified borough outlines as [lon, lat]. Aesthetic, not survey-grade.
+            const BOROUGHS = {
+                Manhattan: [
+                    [-74.019, 40.700], [-74.012, 40.715], [-74.010, 40.730],
+                    [-74.000, 40.745], [-73.996, 40.760], [-73.985, 40.775],
+                    [-73.972, 40.795], [-73.955, 40.820], [-73.940, 40.850],
+                    [-73.925, 40.870], [-73.910, 40.876], [-73.920, 40.865],
+                    [-73.933, 40.835], [-73.935, 40.800], [-73.950, 40.775],
+                    [-73.965, 40.755], [-73.973, 40.745], [-73.977, 40.722],
+                    [-73.990, 40.710], [-74.003, 40.702],
+                ],
+                Bronx: [
+                    [-73.933, 40.801], [-73.905, 40.790], [-73.860, 40.800],
+                    [-73.830, 40.810], [-73.790, 40.825], [-73.772, 40.850],
+                    [-73.785, 40.885], [-73.800, 40.905], [-73.855, 40.915],
+                    [-73.900, 40.915], [-73.915, 40.880], [-73.925, 40.855],
+                    [-73.930, 40.830],
+                ],
+                Queens: [
+                    [-73.962, 40.740], [-73.935, 40.795], [-73.880, 40.790],
+                    [-73.830, 40.790], [-73.780, 40.800], [-73.730, 40.765],
+                    [-73.700, 40.740], [-73.705, 40.660], [-73.745, 40.595],
+                    [-73.800, 40.585], [-73.850, 40.595], [-73.850, 40.640],
+                    [-73.860, 40.690], [-73.900, 40.700], [-73.940, 40.710],
+                ],
+                Brooklyn: [
+                    [-74.040, 40.640], [-74.015, 40.665], [-74.000, 40.690],
+                    [-73.985, 40.703], [-73.960, 40.715], [-73.940, 40.710],
+                    [-73.900, 40.700], [-73.860, 40.690], [-73.855, 40.650],
+                    [-73.900, 40.585], [-73.950, 40.572], [-74.010, 40.573],
+                    [-74.040, 40.600],
+                ],
+                "Staten Island": [
+                    [-74.250, 40.500], [-74.250, 40.555], [-74.200, 40.640],
+                    [-74.150, 40.648], [-74.100, 40.640], [-74.070, 40.600],
+                    [-74.050, 40.575], [-74.090, 40.540], [-74.150, 40.495],
+                ],
+            };
+            const CENTRAL_PARK = [
+                [-73.981, 40.768], [-73.958, 40.800],
+                [-73.949, 40.797], [-73.973, 40.764],
+            ];
+            const LABELS = [
+                ["MANHATTAN", -73.99, 40.83, -64],
+                ["BRONX", -73.86, 40.865, 0],
+                ["QUEENS", -73.78, 40.72, 0],
+                ["BROOKLYN", -73.95, 40.64, 0],
+                ["STATEN ISLAND", -74.15, 40.57, 0],
+            ];
+
+            const SVG_NS = "http://www.w3.org/2000/svg";
+            // lon -74.27..-73.69, lat 40.49..40.94 -> a 600x600 box
+            function project(lon, lat) {
+                return [
+                    ((lon + 74.27) / 0.58) * 600,
+                    ((40.94 - lat) / 0.45) * 600,
+                ];
+            }
+            function pathFor(points) {
+                return (
+                    "M" +
+                    points
+                        .map((p) => project(p[0], p[1]).map((n) => n.toFixed(1)).join(","))
+                        .join("L") +
+                    "Z"
+                );
+            }
+            function svg(tag, attrs, parent) {
+                const el = document.createElementNS(SVG_NS, tag);
+                for (const k in attrs) el.setAttribute(k, attrs[k]);
+                parent.appendChild(el);
+                return el;
+            }
+
+            function drawMap() {
+                for (const name in BOROUGHS) {
+                    svg("path", { d: pathFor(BOROUGHS[name]), class: "borough" }, document.getElementById("boroughs"));
+                }
+                const mPath = pathFor(BOROUGHS.Manhattan);
+                document.getElementById("manhattan-clip-path").setAttribute("d", mPath);
+                document.getElementById("park").setAttribute("d", pathFor(CENTRAL_PARK));
+
+                // Manhattan's street grid: parallel lines tilted ~29 degrees
+                const [cx, cy] = project(-73.97, 40.77);
+                const grid = document.getElementById("manhattan-grid");
+                for (let i = -40; i <= 40; i++) {
+                    svg("line", { x1: cx - 200, x2: cx + 200, y1: cy + i * 4, y2: cy + i * 4,
+                        transform: `rotate(-61 ${cx} ${cy})` }, grid);
+                }
+                for (let i = -14; i <= 14; i++) {
+                    svg("line", { x1: cx + i * 9, x2: cx + i * 9, y1: cy - 260, y2: cy + 260,
+                        transform: `rotate(-61 ${cx} ${cy})` }, grid);
+                }
+
+                // Water ripples
+                const waves = document.getElementById("waves");
+                for (let i = 0; i < 18; i++) {
+                    const x = 20 + ((i * 97) % 560), y = 30 + ((i * 53) % 540);
+                    svg("path", { d: `M${x},${y}q8,-6 16,0t16,0`, class: "wave" }, waves);
+                }
+
+                for (const [text, lon, lat, rot] of LABELS) {
+                    const [x, y] = project(lon, lat);
+                    const t = svg("text", { x, y, class: "label",
+                        transform: `rotate(${rot} ${x} ${y})` }, document.getElementById("labels"));
+                    t.textContent = text;
+                }
+            }
+
+            const pin = document.getElementById("pin");
+            const caption = document.getElementById("map-caption");
+            const geocoded = new Set();
+
+            // Same NYC geocoder the backend uses; the tool results don't carry coordinates.
+            async function locate(address) {
+                if (!address || geocoded.has(address)) return;
+                geocoded.add(address);
+                try {
+                    const res = await fetch(
+                        "https://geosearch.planninglabs.nyc/v2/search?size=5&text=" +
+                            encodeURIComponent(address),
+                    );
+                    const features = (await res.json()).features || [];
+                    const best = features.find((f) => f.properties?.addendum?.pad?.bbl);
+                    if (!best) return;
+                    const [lon, lat] = best.geometry.coordinates;
+                    const [x, y] = project(lon, lat);
+                    pin.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
+                    pin.querySelector("text").textContent = best.properties.name || "";
+                    pin.setAttribute("visibility", "visible");
+                    caption.replaceChildren(
+                        Object.assign(document.createElement("b"), { textContent: "● " }),
+                        best.properties.label,
+                    );
+                } catch (e) {
+                    // The map is decoration; never let it break the chat.
+                }
+            }
+
+            drawMap();
+
+            // ---------- Chat ----------
             function addMessage(role, text, isLoading = false) {
                 const div = document.createElement("div");
                 div.className =
                     "msg " +
                     (role === "you" ? "user" : "assistant") +
                     (isLoading ? " loading" : "");
-                div.innerHTML =
-                    '<div class="role">' +
-                    role +
-                    '</div><div class="content">' +
-                    text +
-                    "</div>";
+                const r = document.createElement("div");
+                r.className = "role";
+                r.textContent = role;
+                const c = document.createElement("div");
+                c.className = "content";
+                c.textContent = text;
+                div.append(r, c);
                 messages.appendChild(div);
                 messages.scrollTop = messages.scrollHeight;
                 return div;
@@ -159,12 +512,13 @@
 
                     // Show each tool the harness ran, above the assistant's answer
                     for (const call of data.tool_calls || []) {
+                        locate(call.args && call.args.address);
                         const div = document.createElement("div");
                         div.className = "tool";
-                        const label = document.createElement("span");
-                        label.className = "label";
-                        label.textContent = "tool call  ";
-                        div.appendChild(label);
+                        const tag = document.createElement("span");
+                        tag.className = "tag";
+                        tag.textContent = "tool call  ";
+                        div.appendChild(tag);
                         div.appendChild(
                             document.createTextNode(
                                 call.name + "(" + JSON.stringify(call.args) + ")\n→ " + call.result,
@@ -180,6 +534,7 @@
                         "Error: " + e.message;
                     loading.classList.remove("loading");
                 }
+                messages.scrollTop = messages.scrollHeight;
                 sendBtn.disabled = false;
                 userInput.focus();
             }
