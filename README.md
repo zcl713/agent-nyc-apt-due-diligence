@@ -26,12 +26,6 @@ Example queries:
 - **Full complaint details**: it sees complaint counts by type, not the text of each complaint.
 - **Anything outside these datasets**: rent prices, amenities, neighborhood safety, or buildings you haven't asked about. It will say so rather than guess.
 
-## Setup
-
-1. A GCP project with billing and the Agent Platform API (formerly Vertex AI) enabled.
-2. `gcloud auth application-default login`
-3. `uv run app.py`, then open http://localhost:8000.
-
 ## About the data
 
 All figures come from NYC Open Data and the NYC geocoder (GeoSearch).
