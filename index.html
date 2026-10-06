@@ -280,9 +280,9 @@
             .tool {
                 flex-shrink: 0;
                 align-self: flex-start;
-                width: fit-content;
-                max-width: 85%;
-                padding: 0.35rem 0.6rem;
+                width: 100%;
+                min-width: 0;
+                max-width: 100%;
                 background: #10172a;
                 border: 1px solid var(--line);
                 border-left: 3px solid var(--taxi);
@@ -293,6 +293,31 @@
                 color: var(--text);
                 white-space: normal;
                 overflow-wrap: anywhere;
+            }
+            .tool summary {
+                padding: 0.6rem 0.75rem;
+                color: var(--taxi);
+                cursor: pointer;
+            }
+            .tool summary:focus-visible {
+                outline: 2px solid var(--taxi);
+                outline-offset: -2px;
+                border-radius: 4px;
+            }
+            .tool[open] summary {
+                border-bottom: 1px solid var(--line);
+            }
+            .tool pre {
+                padding: 0.75rem;
+                font: inherit;
+                white-space: pre-wrap;
+                overflow-wrap: anywhere;
+            }
+            .tool.failed {
+                border-left-color: var(--red);
+            }
+            .tool.failed summary {
+                color: var(--red);
             }
             button:disabled {
                 opacity: 0.3;
@@ -566,12 +591,24 @@
                 return JSON.stringify(v, null, 2);
             }
 
-            // Simple, non-scrollable box: tool name and its arguments.
+            // Native disclosure supports mouse and keyboard expansion.
             function toolBox(call) {
-                const box = document.createElement("div");
+                const box = document.createElement("details");
                 box.className = "tool";
-                const args = Object.values(call.args || {}).join(", ");
-                box.textContent = call.name + "(" + args + ")";
+                let result = call.result;
+                if (typeof result === "string") {
+                    try { result = JSON.parse(result); } catch (e) {
+                        // Preserve plain-text results when they aren't JSON.
+                    }
+                }
+                const failed = result !== null && typeof result === "object" &&
+                    (Boolean(result.error) || result.ok === false);
+                box.classList.toggle("failed", failed);
+                const summary = document.createElement("summary");
+                summary.textContent = `Tool call · ${call.name} · ${failed ? "Failed" : "Completed"}`;
+                const payload = document.createElement("pre");
+                payload.textContent = pretty({ args: call.args || {}, result: result ?? null });
+                box.append(summary, payload);
                 return box;
             }
 
