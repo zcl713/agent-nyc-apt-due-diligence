@@ -16,7 +16,7 @@ This agent takes free text as input. Give an NYC street address (with the boroug
 
 Example queries:
 
-- `245 W 104th St, Manhattan`
+- Your address!
 - `Is 22 Stagg St, Brooklyn any good? Look at the last 5 years of complaints.`
 - `Who owns 245 W 104th St, Manhattan, and what else do they manage?`
 
