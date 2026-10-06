@@ -279,16 +279,19 @@
             }
             .tool {
                 font-family: ui-monospace, monospace;
-                font-size: 0.85rem;
-                line-height: 1.45;
+                font-size: 0.95rem;
+                line-height: 1.5;
                 color: #b4bdd6;
                 background: #10172a;
                 border-left: 3px solid var(--taxi);
                 padding: 0.5rem 0.75rem;
                 white-space: pre-wrap;
                 word-break: break-word;
-                max-height: 18rem;
+                /* Fixed-size box that scrolls inside. flex-shrink: 0 keeps it from being
+                   squashed inside the fixed-height #messages column. */
+                height: 16rem;
                 overflow-y: auto;
+                flex-shrink: 0;
             }
             .tool .tag {
                 text-transform: uppercase;
