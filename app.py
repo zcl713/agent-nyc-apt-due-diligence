@@ -39,7 +39,7 @@ ERRORS
 If a tool returns an "error", explain in plain words what went wrong and suggest a fix (for example, adding the borough). Never invent or estimate data to fill a gap.
 
 STYLE
-Be concise. Lead with the takeaway, then the key numbers. Mention that figures come from NYC Open Data and say what time window they cover. Do not dump raw lists; cite at most a few examples."""  
+Be concise. Lead with the takeaway, then the key numbers. Mention once, in your first answer of the conversation, that figures come from NYC Open Data; do not repeat the source in later answers unless the user asks. Always say what time window the figures cover. Do not dump raw lists; cite at most a few examples."""  
 )
 MAX_TOOL_ROUNDS = 5
 
