@@ -1,6 +1,6 @@
 # NYC Apartment Check
 
-A chat assistant that helps NYC renters and buyers do due diligence on a building before they sign. Give it a street address and it pulls official NYC Open Data: housing violations, resident complaints, and the landlord's wider record. It then summarizes the key numbers and patterns in plain language. 
+A chat assistant that helps NYC renters and buyers do due diligence on a building before they sign. Give it a street address and it pulls official NYC Open Data: housing violations, resident complaints, and the landlord's wider record. It then summarizes the key numbers in plain language. 
 
 ## Tools
 
@@ -12,19 +12,20 @@ A chat assistant that helps NYC renters and buyers do due diligence on a buildin
 
 ## How to use
 
-This agent takes free text as input. Give an NYC street address (with the borough) and the agent looks up the building's violations and complaints. Additonally, you can ask about the landlord's portfolio. 
+This agent takes free text as input. Give an NYC street address (with the borough) and the agent looks up the building's violations and complaints. Additonally, you can ask about the landlord's portfolio. The agent can retrieve the 5 most recent violations. 
 
 Example queries:
 
-- Your address!
-- `Is 22 Stagg St, Brooklyn any good? Look at the last 5 years of complaints.`
+- Your address! (if you don't want to put your address you can use `24 Vandalia Avenue, Brooklyn, NY 11239`)
+- `Which has more open violations : 911 Hancock Street, 11233 or 8501 Fort Hamilton Parkway, 11209`
 - `Who owns 245 W 104th St, Manhattan, and what else do they manage?`
+
 
 ### What the agent doesn't have
 
 - **Specific apartments**: all data is at the building level, so it can't tell you about a particular unit.
-- **Full complaint details**: it sees complaint counts by type, not the text of each complaint.
-- **Anything outside these datasets**: rent prices, amenities, neighborhood safety, or buildings you haven't asked about. It will say so rather than guess.
+- **Full complaint/violation details**: for simplicity, the agent can only retrieve the 5 most recent violations and the counts are summed by type.
+- **Anything outside these datasets**: rent prices, amenities, neighborhood safety, or buildings you haven't asked about. 
 
 ## About the data
 
